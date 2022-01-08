@@ -1,0 +1,70 @@
+#include <bits/stdc++.h>
+using namespace std;
+#define lli long long int
+#define fastio()                      \
+    ios_base::sync_with_stdio(false); \
+    cin.tie(NULL);                    \
+    cout.tie(NULL);
+    
+/*
+1) to check whether a no is prime, we need to go only upto sqrt(n) because
+factors occur in pair, and in all those pairs, one factor will always be <= sqrt(n) and the other one will be >= sqrt(n)
+and for each pair we need to check only once with one of the number in that pair
+so we choose the value <= sqrt(n) in all pairs
+
+2) in seive 'i' goes upto sqrt(n), but 'i' can also go upto n
+because j starts from i*i so the nested loop wont run after 'i'=sqrt(n)
+so even if 'i' goes to n the nested loop wont run and there wont be
+any significant change in time complexity
+
+*/
+    
+vector<int> seive(int n)
+{
+    vector<int> isPrime(n+5,true);
+    isPrime[0]=isPrime[1]=false;
+    
+    for(int i=2;i<=sqrt(n);i++)
+    {
+        if(isPrime[i])
+        {
+            // 'i' is prime, therefore all its multiples are non-prime
+            for(int j=i*i;j<=n;j+=i) isPrime[j]=false;
+        }
+    }
+    
+    return isPrime;
+}
+    
+
+bool checkPrime(int n)
+{
+    for(int i=2;i<=sqrt(n);i++)
+    if(n%i==0) return false;
+    
+    return true;
+}
+    
+void solve()
+{
+    int n; cin>>n;
+    
+    cout<<checkPrime(n)<<endl;
+    
+    vector<int> isPrime=seive(n);
+    for(int i=0;i<min(n,100);i++)
+    if(isPrime[i]) cout<<i<<" ";
+    cout<<'\n';
+    
+    return;
+}
+
+int main()
+{
+    fastio();
+    int t=1;
+    //cin>>t;
+    while(t--) solve();
+
+    return 0;
+}
