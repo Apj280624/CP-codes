@@ -7,7 +7,6 @@ using namespace std;
     cout.tie(NULL);
     
 /*
-
 concept:
 Euler Totient Function, represented by phi
 phi(n)= number of integers from 1 to n, which are coprime to n
