@@ -1,0 +1,139 @@
+#include <bits/stdc++.h>
+using namespace std;
+#define lli long long int
+#define fastio()                      \
+    ios_base::sync_with_stdio(false); \
+    cin.tie(NULL);                    \
+    cout.tie(NULL);
+    
+/*
+
+concept:
+Euler Totient Function, represented by phi
+phi(n)= number of integers from 1 to n, which are coprime to n
+
+phi(n)=n*(1-1/p1)*(1-1/p2)...........(1-1/pk)
+where p1,p2,.....pk are distinct prime factors of n
+
+Properties required in proof:
+Property A: 
+if a and b are coprime(gcd(a,b)==1) then phi(a*b)=phi(a)*phi(b)
+
+Property B: 
+phi(p^k) = p^k-p^(k-1). 
+Note that here ^ denotes power. Here all the numbers from 1 to p^k are coprime to p^k except all the multiples of p, which are exactly p^(k-1).
+
+Property C:
+phi(p)=p-1, where p is prime. All the numbers from 1 to p - 1 are coprime to p.
+
+Proof:
+
+n=(p1^a1) * (p2^a2) * ........... (pk^ak)
+phi(n) = phi((p1^a1) * (p2^a2) * ........... (pk^ak))
+since p1^a1 and all other are coprime to each other ------- property A
+
+phi(n) = phi(p1^a1) * phi(p2^a2) * ......... phi(pk^ak)
+
+phi(p1^a1) = (p1^a1) - (p1^(a1-1))       ------- property B
+=> phi(p1^a1) = (p1^a1)(1-1/p1)
+similarily we do for all
+
+so finally,
+
+phi(n) = (p1^a1)(1-1/p1) * (p2^a2)(1-1/p2) * .......... (pk^ak)(1-1/pk)
+
+phi(n) = (p1^a1) * (p2^a2) * ........... (pk^ak) * (1-1/p1) * (1-1/p2) * .......... (1-1/pk)
+
+/////////////////////////////////////////////////////////////
+phi(n) = n*(1-1/p1)*(1-1/p2)*....... (1-1/pk)    ----- final formula
+/////////////////////////////////////////////////////////////
+
+in phi1 and phi2 for we do ans-=ans/i for each i
+this is equivalent to ans = ans*(1-1/i) ----- like in the final formula of phi
+
+*/
+    
+int phi2(int n)
+{
+    int ans=n;
+    for(int i=2;i<=sqrt(n);i++)
+    {
+        if(n%i==0)
+        {
+            ans-=ans/i;
+            
+            // remove contribution of 'i' in the prime factorization of n
+            while(n%i==0) n/=i;
+        }
+    }
+    
+    if(n>1) ans-=ans/n;
+    
+    return ans;
+}
+    
+bool isPrime(int n)
+{
+    for(int i=2;i<=sqrt(n);i++)
+    if(n%i==0) return false;
+    
+    return true;
+}
+ 
+// Tc=o(n*sqrt(n))   
+int phi1(int n)
+{
+    int ans=n;
+    for(int i=2;i<=n;i++)
+    {
+        if(isPrime(i) && n%i==0)
+        {
+            // this means i exists in the prime factorization of n
+            ans-=ans/i;
+        }
+    }
+    
+    return ans;
+}
+
+vector<int> findEtf(int n)
+{
+    vector<int> etf(n+1);
+    for(int i=0;i<=n;i++) etf[i]=i;
+    
+    for(int i=2;i<=n;i++)
+    {
+        if(etf[i]==i) // this means 'i' is prime
+        {
+            // multiply 1-1/i to all numbers with have 'i' as their
+            // prime factor, ie we go to all multiples of i
+            for(int j=2*i;j<=n;j+=i) etf[j]-=etf[j]/i; 
+            etf[i]=i-1; // property C
+        }
+    }
+    
+    return etf;
+}
+    
+void solve(int n)
+{
+    cout<<phi1(n)<<' ';
+    cout<<phi2(n)<<' ';
+    
+    return;
+}
+
+int main()
+{
+    fastio();
+    int t=1;
+    cin>>t;
+    vector<int> etf=findEtf(t);
+    for(int i=1;i<=t;i++) 
+    {
+        solve(i);
+        cout<<etf[i]<<endl;
+    }
+
+    return 0;
+}
