@@ -1,0 +1,93 @@
+#include <bits/stdc++.h>
+using namespace std;
+#define lli long long int
+#define fastio()                      \
+    ios_base::sync_with_stdio(false); \
+    cin.tie(NULL);                    \
+    cout.tie(NULL);
+    
+/*
+
+source: stiver youtube series
+primes for cp
+link: https://www.youtube.com/watch?v=-DHwP-oAV_0
+time stamp for problem: 17 mins
+
+this problem contains multiple test cases:
+T test cases given for each test cases
+you will be given n 
+find the number of numbers in 1 to 1e6 whose spf is n
+
+some things to notice:
+if cnt[i]=0, this means it is non prime, as it was marked by a prime
+so cnt[i]>=1, only for primes
+
+test cases to test:
+
+7
+1
+2 
+5 
+7 
+8
+15
+45
+
+*/
+    
+int N=1e6; // numbers upto 1e6
+vector<int> cnt(N+1);
+    
+void precompute()
+{
+    for(int i=0;i<=N;i++) cnt[i]=1; 
+    cnt[0]=0,cnt[1]=0;
+    /*
+    initially for all i>=2, cnt is 1 because each no has themselves
+    as their spf initially
+    0,1 can never be spf to any nos
+    */
+    
+    for(int i=2;i*i<=N;i++)
+    {
+        if(cnt[i]==1)
+        {
+            /* i is prime as no one marked it, all the multiples of i which are 
+            still unmarked (cnt=0) will have their spf as i
+            and their cnt will becomes zero forever because they are non primes
+            as they have a spf, and non primes can never be spf to any
+            */
+            
+            for(int j=i*i;j<=N;j+=i)
+            {
+                if(cnt[j]==1)
+                {
+                    cnt[j]=0;
+                    cnt[i]++; // i is spf of j, increase count
+                }
+            }
+        }
+    }
+    
+    return;
+}
+
+void solve()
+{
+    int n; cin>>n;
+    
+    cout<<cnt[n]<<'\n';
+    
+    return;
+}
+
+int main()
+{
+    precompute();
+    fastio();
+    int t=1;
+    cin>>t;
+    while(t--) solve();
+
+    return 0;
+}

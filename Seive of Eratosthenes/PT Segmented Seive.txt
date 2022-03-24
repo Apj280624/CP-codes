@@ -1,0 +1,103 @@
+#include <bits/stdc++.h>
+using namespace std;
+#define lli long long int
+#define fastio()                      \
+    ios_base::sync_with_stdio(false); \
+    cin.tie(NULL);                    \
+    cout.tie(NULL);
+#define ll long long
+    
+/*
+
+source: striver youtube series, L5 of primes for cp 
+
+test cases to test:
+first line contains the number of test cases
+
+4
+0 10
+1 12
+100 130
+100000007 100000009
+
+steps:
+we have generate all primes till sqrt(max(R)) in a list
+
+(1) traverse primes till sqrt(R) from list
+(2) create a dummy array of size R-L+1 and mark every one as true initially
+(3) for all primes numbers <= R, mark it multiples in the range L to R as 
+false, start marking from max (x*x,first multiple), where x is the current prime
+
+*/
+    
+ll M=1e6+100;
+vector<bool> seive(M+1);
+vector<ll> v;
+ll mod=1e9+7;
+    
+void precompute_primes()
+{
+    for(ll i=2;i<=M;i++) 
+    seive[i]=true;
+    
+    for(ll i=2;i*i<=M;i++)
+    {
+        if(seive[i])
+        {
+            for(ll j=i*i;j<=M;j+=i)
+            seive[j]=false;
+        }
+    }
+    
+    v.clear();
+    for(ll i=2;i<=M;i++)
+    if(seive[i]) v.push_back(i);
+}
+    
+void solve()
+{
+    ll L,R; cin>>L>>R;
+    ll N=R-L+1;
+    vector<ll> pr(N,true);
+    
+    // consider primes till sqrt(R) 
+    for(auto x:v)
+    {
+        if(x*x>R) break; // dont exceed sqrt(R)
+        //mark all the multiples of x in dummy vector
+        
+        ll mul=ceil((double)L/(double)x)*x; // first multiple of x,which is>= L
+        
+        for(ll i=max(x*x,mul);i<=R;i+=x) // jumps of x
+        pr[i-L]=false;
+    }
+    
+    if(L==0)
+    {
+        pr[0]=pr[1]=false; // pr[0] contains whether 0 is prime, and pr[1] contains whether 1 is prime
+    }
+    else if(L==1)
+    {
+        pr[0]=false; // pr[0] contains whether 1 is prime
+    }
+    
+    for(ll i=L;i<=R;i++)
+    if(pr[i-L]) 
+    cout<<i<<" ";
+    
+    cout<<'\n';
+    
+    return;
+}
+
+int main()
+{
+    precompute_primes();
+
+    fastio();
+    int t=1;
+    cin>>t;
+    while(t--) solve();
+
+    return 0;
+}

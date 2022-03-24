@@ -1,0 +1,39 @@
+#include <iostream>
+#include <bits/stdc++.h>
+using namespace std;
+#define lli long long int
+
+vector<lli> pf;
+ 
+void prime_factorize(lli x)
+{
+    while (x%2==0)
+    {
+        pf.push_back(2);
+        x=x/2;
+    }
+ 
+    // n must be odd at this point. So we can skip one element (Note i = i +2)
+    for (lli i=3;i<=sqrt(x);i+=2)
+    {
+        while (x%i==0)
+        {
+            pf.push_back(i);
+            x=x/i;
+        }
+    }
+
+    if (x>2) pf.push_back(x);
+    return;
+}
+
+int main()
+{
+    lli x=30;
+    prime_factorize(x);
+    cout<<pf.size()<<endl;
+    
+    return 0;
+}
+
+

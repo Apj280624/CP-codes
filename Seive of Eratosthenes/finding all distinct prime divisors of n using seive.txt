@@ -1,0 +1,60 @@
+#include <iostream>
+#include <bits/stdc++.h>
+using namespace std;
+
+/*
+NOTE: function to find distinct prime divisors requires a list of prime numbers atleast upto n, ie the given number 
+so first you need to call find_primes function to find prime numbers
+
+THIS IS GOOD ONE EVEN FOR MULTIPLE QUERIES AS PRIME NUMBERS ARE CALCULATED ONLY ONCE AND ARE STORED IN THE LIST
+
+problem may contain multiple queries or may be not, slight changes could be made accordingly
+*/
+
+void print_vector(vector<int> a)
+{
+    for(int i=0;i<a.size();i++)
+    cout<<a[i]<<" ";
+    cout<<endl;
+}
+
+int n=-1;
+int MAXN=100000;
+vector<bool> is_prime(MAXN+5,true);
+vector<int> primes; //list of all prime numbers upto n
+vector<int> pf; //list of prime factors of n
+ 
+void find_primes(int n)
+{
+    for(int i=2;i<=sqrt(n);i++)
+    {
+        if(is_prime[i]==true) //then all multiples of i would be non prime
+        {
+            for(int j=i*i;j<=n;j+=i) //jumps of i
+            is_prime[j]=false;
+        }
+    }
+    
+    for(int i=2;i<=n;i++)
+    if(is_prime[i]==true) primes.push_back(i);
+    
+    return;
+}
+ 
+void find_prime_divisors(int n) 
+{
+    for(int i=0;i<primes.size();i++)
+    if(n%primes[i]==0)
+    pf.push_back(primes[i]);
+}
+
+int main()
+{
+    int n; cin>>n;
+    //first you need to call find_primes to find prime numbers
+    find_primes(n); 
+    find_prime_divisors(n);
+    //print_vector(pf);
+    
+    return(0);
+}
