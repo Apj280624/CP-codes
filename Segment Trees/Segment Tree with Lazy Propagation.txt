@@ -1,0 +1,155 @@
+#include <bits/stdc++.h>
+using namespace std;
+#define fastio()                      \
+    ios_base::sync_with_stdio(false); \
+    cin.tie(NULL);                    \
+    cout.tie(NULL);
+#define lli long long int
+#define ll long long
+#define pii pair<int,int>
+
+/*
+
+test case to test:
+
+5 
+1 2 3 4 5
+9
+1 0 3
+2 3 4 -2
+1 2 3
+2 0 4 2
+1 0 1 
+2 1 3 5
+1 2 4
+2 3 4 -3
+1 0 1
+
+*/
+
+int N=1e5+100,M=4*N+1;
+vector<int> a(N),seg(M),lazy(M);
+
+void build(int idx,int low,int high)
+{
+    if(low==high)
+    {
+        lazy[idx]=0;
+        seg[idx]=a[low];
+        return;
+    }
+    
+    int mid=(low+high)>>1;
+    int l_idx=2*idx+1,r_idx=2*idx+2;
+    
+    build(l_idx,low,mid);
+    build(r_idx,mid+1,high);
+    
+    lazy[idx]=0;
+    seg[idx]=seg[l_idx]+seg[r_idx];
+}
+
+int find(int idx,int low,int high,int l,int r)
+{
+    if(low>high) return 0;
+    
+    int l_idx=2*idx+1,r_idx=2*idx+2;
+    
+    if(lazy[idx])
+    {
+        seg[idx]+=(high-low+1)*lazy[idx];
+        if(low!=high)
+        {
+            lazy[l_idx]+=lazy[idx];
+            lazy[r_idx]+=lazy[idx];
+        }
+        
+        lazy[idx]=0;
+    }
+    
+    if(high<l || r<low) return 0;
+    else if(l<=low && high<=r) return seg[idx];
+    
+    int mid=(low+high)>>1;
+    int res_l=find(l_idx,low,mid,l,r);
+    int res_r=find(r_idx,mid+1,high,l,r);
+    
+    return res_l+res_r;
+}
+
+void update(int idx,int low,int high,int l,int r,int val)
+{
+    if(low>high) return;
+    
+    int l_idx=2*idx+1,r_idx=2*idx+2;
+    
+    if(lazy[idx]) 
+    {
+        seg[idx]+=(high-low+1)*lazy[idx];
+        if(low!=high)
+        {
+            lazy[l_idx]+=lazy[idx];
+            lazy[r_idx]+=lazy[idx];
+        }
+        
+        lazy[idx]=0;
+    }
+    
+    if(high<l || r<low) return;
+    else if(l<=low && high<=r) 
+    {
+        if(val)
+        {
+            seg[idx]+=(high-low+1)*val;
+            if(low!=high)
+            {
+                lazy[l_idx]+=val;
+                lazy[r_idx]+=val;
+            }
+        }
+        
+        return;
+    }
+    
+    int mid=(low+high)>>1;
+    update(l_idx,low,mid,l,r,val);
+    update(r_idx,mid+1,high,l,r,val);
+    
+    seg[idx]=seg[l_idx]+seg[r_idx];
+}
+
+void solve()
+{
+    int n; cin>>n;
+    for(int i=0;i<n;i++) cin>>a[i];
+    
+    build(0,0,n-1);
+    
+    int q; cin>>q;
+    while(q--)
+    {
+        int type; cin>>type;
+        if(type==1)
+        {
+            int l,r; cin>>l>>r;
+            cout<<find(0,0,n-1,l,r)<<'\n';
+        }
+        else
+        {
+            int l,r,val; cin>>l>>r>>val;
+            update(0,0,n-1,l,r,val);
+        }
+    }
+    
+    return;
+}
+
+int main()
+{
+    fastio();
+    int t=1;
+    // cin>>t;
+    while(t--) solve();
+
+    return 0;
+}
