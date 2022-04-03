@@ -1,0 +1,11 @@
+int bin_expo(int b,int p,int m)
+{
+    int ans=1;
+    while(p)
+    {
+        if(p&1) { ans=(ans*b)%m; p--; }
+        else { b=(b*b)%m; p/=2; }
+    }
+    
+    return ans;
+}
