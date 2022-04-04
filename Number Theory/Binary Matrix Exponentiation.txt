@@ -11,6 +11,7 @@ using namespace std;
 #define vii vector<vector<int>>
 
 // to test: https://www.spoj.com/problems/MPOW/
+// time complexity of mat_mul is o(n^3), therefore time complexity of matrix multiplication = o(n^3 logp)
 
 void print_mat(vii a)
 {
