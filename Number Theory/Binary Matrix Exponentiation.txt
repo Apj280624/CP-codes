@@ -1,0 +1,85 @@
+#include <bits/stdc++.h>
+using namespace std;
+#define fastio()                      \
+    ios_base::sync_with_stdio(false); \
+    cin.tie(NULL);                    \
+    cout.tie(NULL);
+#define lli long long int
+#define ll long long
+#define pii pair<int,int>
+#define vi vector<int>
+#define vii vector<vector<int>>
+
+// to test: https://www.spoj.com/problems/MPOW/
+
+void print_mat(vii a)
+{
+    for(auto x:a)
+    {
+        for(auto y:x) cout<<y<<" ";
+        cout<<'\n';
+    }
+}
+
+vii mat_mul(vii a,vii b)
+{
+    // m1 must be equal to n2, and ans of size n1*m2
+    int n1=a.size(),m1=a[0].size(),n2=b.size(),m2=b[0].size();
+    
+    vii ans(n1,vi(m2));
+    
+    for(int i=0;i<n1;i++)
+    for(int j=0;j<m2;j++)
+    {
+        ans[i][j]=0;
+        for(int k=0;k<m1;k++)
+        ans[i][j]+=a[i][k]*b[k][j];
+    }
+    
+    return ans;
+}
+
+void mat_expo(vii a,int p)
+{
+    int n1=a.size(),m1=a[0].size();
+    
+    // identity matrix is always square so assuming here n1==m1
+    vii ans(n1,vi(n1));
+    for(int i=0;i<n1;i++) ans[i][i]=1;
+    
+    // simple exponentiation
+    // for(int i=1;i<=p;i++)
+    // ans=mat_mul(ans,a);
+    
+    // binary exponentiation
+    
+    while(p)
+    {
+        if(p&1) { ans=mat_mul(ans,a); p--; }
+        else { a=mat_mul(a,a); p/=2; }
+    }
+    
+    print_mat(ans);
+}
+
+void solve()
+{
+    int n,p; cin>>n>>p;
+    vii a(n,vi(n));
+    for(int i=0;i<n;i++)
+    for(int j=0;j<n;j++) cin>>a[i][j];
+    
+    mat_expo(a,p);
+    
+    return;
+}
+
+int main()
+{
+    fastio();
+    int t=1;
+    // cin>>t;
+    while(t--) solve();
+
+    return 0;
+}
