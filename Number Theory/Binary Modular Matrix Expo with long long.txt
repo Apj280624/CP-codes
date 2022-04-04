@@ -13,6 +13,7 @@ using namespace std;
 #define vvl vector<vl> 
 
 // to test: https://www.spoj.com/problems/MPOW/
+// time complexity of mat_mul is o(n^3), therefore time compplexity of matrix multiplication = o(n^3 logp)
 
 ll mod=1e9+7;
 
