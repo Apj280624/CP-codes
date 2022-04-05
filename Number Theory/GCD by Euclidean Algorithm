@@ -1,0 +1,51 @@
+#include <bits/stdc++.h>
+using namespace std;
+#define fastio()                      \
+    ios_base::sync_with_stdio(false); \
+    cin.tie(NULL);                    \
+    cout.tie(NULL);
+#define lli long long int
+#define ll long long
+#define pii pair<int,int>
+#define vi vector<int>
+#define vvi vector<vi>
+#define vl vector<ll>
+#define vvl vector<vl> 
+
+ll gcd(ll a,ll b)
+{
+    if(b==0) return a;
+    return gcd(b,a%b);
+}
+
+// iterative version of the above recursive
+
+// ll gcd(ll a,ll b)
+// {
+//     while(b)
+//     {
+//         ll temp=a;
+//         a=b;
+//         b=temp%b;
+//     }
+    
+//     return a;
+// }
+
+void solve()
+{
+    ll a=175,b=10;
+    cout<<gcd(a,b)<<'\n';
+    
+    return;
+}
+
+int main()
+{
+    fastio();
+    int t=1;
+    // cin>>t;
+    while(t--) solve();
+
+    return 0;
+}
