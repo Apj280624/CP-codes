@@ -1,3 +1,6 @@
+DSU: https://cp-algorithms.com/data_structures/disjoint_set_union.html
+for this thing just read things before the topic: Linking by index / coin-flip linking, there's a lot more to read if needed in future
+
 class DSU {
     int n; 
     vector<int> par;
