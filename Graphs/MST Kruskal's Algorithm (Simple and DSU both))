@@ -1,0 +1,207 @@
+#include <bits/stdc++.h>
+using namespace std;
+#define fastio()                      \
+    ios_base::sync_with_stdio(false); \
+    cin.tie(NULL);                    \
+    cout.tie(NULL);
+#define lli long long int
+#define ll long long
+#define pii pair<int,int>
+#define pll pair<ll,ll>
+#define vi vector<int>
+#define vl vector<ll>
+#define vvi vector<vi>
+#define vvl vector<vl> 
+#define tpiii tuple<int,int,int>
+#define tplll tuple<ll,ll,ll>
+
+/*
+all three articles contain the neccessary info
+implementations tested on CSES problem set
+Graph Algorithms: 
+Road Reparation
+
+time complexity
+Kruskal fast: eloge + for loop on edges 
+=eloge + e*(dsu operation time)
+Kruskal slow: eloge + (v-1)(v) = eloge + v^2
+
+read below Notice for optimized implementation to better understand time comp
+
+Minimum Spanning Tree: Kruskal bruteforce:
+https://cp-algorithms.com/graph/mst_kruskal.html
+
+Minimum Spanning Tree: Kruskal using DSU:
+https://cp-algorithms.com/graph/mst_kruskal_with_dsu.html
+
+How Kruskal ensures that the found subgraph is a tree or we can say how it avoids cycles or how it finds a subgraph containing only n-1 edges
+Kruskal starts from the trees and combines them such that the resultant graph
+is also a tree that's why it combines only if tree_u!=tree_v, because
+if tree_u==tree_v then they lie in the same tree and there's already some path between u and v and if we add an edge connecting u and v then there would be atleast two paths between u and v, and therefore a cycle will get created
+
+How n-1 edges, as the final output is a tree therefore n-1 edges
+we can also understand it like this: each time two trees of n1 and n2 vertices, n1-1 and n2-1 edges combine to form a tree of n1+n2 vertices and (n1-1) + (n2 - 1) + 1 (new edge used to combine trees) = n1+n2-1 edges, so resultant is also a tree so n-1 edges, and there are many ways to prove these things you can choose any way
+
+OPTIMZED IMPLEMENTATION FOR BOTH SLOW AND FAST: ***********************
+Notice: although we traverse all the edges only n-1 edges will be selected
+and after selection of those the if statement (for example: in slow -> if(tree[u]==tree[v]) continue;) in the edges loop will never be true, because it becomes true after selection of n-1 edges a cycle will be created and algorithm doesnot want this to happen
+so we can stop the algorithm  when n-1 edges are selected 
+
+
+DSU: https://cp-algorithms.com/data_structures/disjoint_set_union.html
+all DSU operations are constant time 
+ if we combine both optimizations - path compression with union by size / rank - we will reach nearly constant time queries. It turns out, that the final amortized time complexity is O(α(n)), where α is the inverse Ackermann function, which grows very slowly. In fact it grows so slowly, that it doesn't exceed  for all reasonable  (approximately ).
+ 
+*/
+
+class DSU {
+    int n; 
+    vector<int> par;
+    vector<int> size,rank; // size[i] = no of nodes in the subtree of i
+    
+    public:
+    DSU(int n) {
+        this->n=n; 
+        // here we are not calling the make_set, user needs to explicitly call the method via the object
+    } 
+    
+    void make_set() {
+        par.resize(n);
+        size.resize(n);
+        rank.resize(n);
+        for(int i=0;i<n;i++) {
+            par[i]=i; 
+            size[i]=rank[i]=1;
+        }
+    }
+    
+    int find_set(int x) {
+        if(x==par[x]) return x;
+        return par[x]=find_set(par[x]); // path compression
+    }
+    
+    void union_set(int x,int y) {
+        union_by_size(x,y); // use anyone as you like
+        // union_by_rank(x,y); 
+    }
+    
+    void union_by_random(int x,int y) {
+        int lx=find_set(x),ly=find_set(y);
+        
+        par[ly]=lx; // or vice versa
+    }
+    
+    // attach the subtree with smaller size/rank to the one with larger size/rank so resultant tree has minimum height (I guessed and examined too)
+    void union_by_size(int x,int y) {
+        int lx=find_set(x),ly=find_set(y);
+        if(size[lx]<size[ly]) swap(lx,ly); // we always want to attach ly to lx to reduce the lines of code, so swap 
+        // now size[lx]>=size[ly] for sure 
+        par[ly]=lx;
+        size[lx]+=size[ly]; // size[ly] remains same because it has'nt been changed
+    }
+    
+    void union_by_rank(int x,int y) {
+        int lx=find_set(x),ly=find_set(y);
+        if(rank[lx]<rank[ly]) swap(lx,ly); // we always want to attach ly to lx to reduce the lines of code, so swap
+        // now rank[lx]>=rank[ly] for sure 
+        par[ly]=lx;
+        if(rank[lx]==rank[ly]) rank[lx]++; // out of the two cases possible after swapping, rank[lx] increases by 1 only when rank[lx]=rank[ly], rank[ly] remains same because it has'nt been changed
+    }
+};
+
+ll Kruskal_fast(vector<tplll>& e,int n) {
+    DSU dsu(n);
+    dsu.make_set(); 
+    
+    vector<tplll> sel; // edges selected in the mst
+    ll ans=0; // mst cost
+    sort(e.begin(),e.end()); // t=eloge
+
+    for(auto x:e) {
+        ll w=get<0>(x),u=get<1>(x),v=get<2>(x);
+        // we want select this edge if possible because its min in all upcoming
+        // we cannot select the edge between u and v if there's already some path between them ie if they already belong to the same
+        if(dsu.find_set(u)==dsu.find_set(v)) continue;
+        //select this edge
+        sel.push_back(x);
+        ans+=w;
+        
+        // merge tree[u] and tree[v] into one tree lets say 'v'
+        dsu.union_set(u,v); 
+    }
+    
+    if(sel.size()<n-1) ans=-1;
+    return ans;
+}
+
+ll Kruskal_slow(vector<tplll>& e,int n) {
+    vector<int> tree(n);
+    for(int i=0;i<n;i++) tree[i]=i;
+    
+    vector<tplll> sel; // edges selected in the mst
+    ll ans=0; // mst cost
+    sort(e.begin(),e.end()); // t=eloge
+    
+    for(auto x:e) {
+        ll w=get<0>(x),u=get<1>(x),v=get<2>(x);
+        // we want select this edge if possible because its min in all upcoming
+        // we cannot select the edge between u and v if there's already some path between them ie if they already belong to the same
+        if(tree[u]==tree[v]) continue;
+        //select this edge
+        sel.push_back(x);
+        ans+=w;
+        
+        // merge tree[u] and tree[v] into one tree lets say 'v'
+        int safe=tree[u]; // this value may get lost while updating
+        for(int i=0;i<n;i++)
+        if(tree[i]==safe) tree[i]=tree[v];
+    }
+    
+    if(sel.size()<n-1) ans=-1; 
+    return ans;
+}
+
+
+void solve()
+{
+    int n,m; cin>>n>>m;
+    vector<tplll> e;
+    for(int i=0;i<m;i++) {
+        int u,v,w; cin>>u>>v>>w;
+        u--; v--;
+        // what if u==v ?
+        if(u==v) continue; // bad edge, introduces a cycle + extra weight 
+        e.push_back({w,u,v}); // because sort by w, or make a custom comp func
+        e.push_back({w,v,u}); // put two or one ?
+    }
+    
+    ll ans=0;
+    // ans=Kruskal_slow(e,n);
+    ans=Kruskal_fast(e,n);
+    
+    if(ans==-1) cout<<"IMPOSSIBLE"<<'\n';
+    /*
+    answer will not be possible if the graph is disconnected, a disconnected
+    graph cannot have a spanning tree spanning over the whole graph (although each individual connected component can have it own spanning tree)
+    
+    so we just want to check whether the graph is disconnected, you could check it seperately but to avoid work we can check it using the mst itself
+    
+    here Kruskal ensures that all sets are trees, so lets say we have two trees formed by Kruskal of n1, n2 nodes each, as they are tree edges e1=n1-1, e2=n2-1
+    if Kruskal algo combines them into a single tree then nodes n3=n1+n2, and edges e3=n1+n2-1
+    but if selected edges are less than those required ie e1+e2<e3, then we could n't select the required number of edges to make the whole graph as a single connected component and hence ans is not possible
+    */
+    
+    else cout<<ans<<'\n';
+    
+    return;
+}
+
+int main()
+{
+    fastio();
+    int t=1;
+    // cin>>t;
+    while(t--) solve();
+
+    return 0;
+}
