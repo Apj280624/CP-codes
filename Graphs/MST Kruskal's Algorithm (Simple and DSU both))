@@ -16,6 +16,10 @@ using namespace std;
 #define tplll tuple<ll,ll,ll>
 
 /*
+
+KRUSKAL'S ALGORITHM FOR MST
+greedy, we have to study MST for undirected graphs only
+
 all three articles contain the neccessary info
 implementations tested on CSES problem set
 Graph Algorithms: 
