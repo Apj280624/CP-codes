@@ -34,6 +34,8 @@ ll mod_mul(ll x,ll y,ll m) { return ((x%m)*(y%m))%m; }
 
 /*
 Prim's algorithm: Greedy
+Tested on CSES problem set: Road reparation
+https://cses.fi/problemset/task/1675/
 Algorithm: 
 -> We have two types of nodes, selected in MST and not selected in MST
 
@@ -82,33 +84,83 @@ Approach 2: suitable for Sparse graphs as E is small, t = O(ElogV)
 -> improve the distance for the unselected neighbours of v, and if improvement occurs
 erase the previous instance and add the improved instance
 
-
 */
 
-const int INF = 1e9+10;
+const int INF = 1e9+100;
 
-void Prim_dense(int n, int m, vector<vector<pii>>& adj) {
+ll Prim_sparse(int n, vector<pii> adj[]) {
     vector<bool> mst(n);
-    vector<int> par(n), dist(n, INF);
+    vector<int> par(n);
+    vector<int> dist(n, INF);
+
+    set<pii> set; 
+    dist[0] = 0;
+    set.insert({dist[0], 0});
+
+    for(int counter=1; counter<n; counter++) {
+        if(set.empty()) {
+            return -1;
+        }
+
+        int sel_node = (*set.begin()).second;
+        int sel_dist = (*set.begin()).first;
+
+        mst[sel_node] = true;
+        set.erase(set.begin());
+
+        for(auto it: adj[sel_node]) {
+            int v = it.first;
+            int w = it.second;
+
+            if(!mst[v] && w<dist[v]) {
+                if(set.find({dist[v], v}) != set.end()) {
+                    set.erase({dist[v], v});
+                }
+
+                par[v] = sel_node;
+                dist[v] = w;
+                set.insert({dist[v], v});
+            }
+        }
+    }
+
+    ll ans = 0;
+    for(int node=1; node<n; node++) {
+        ans += dist[node];
+    }
+
+    // cout << "u" << "      " << "v" << "  " << "d" << endl;
+    // for(int node=1; node<n; node++) {
+    //     cout << node << " ---- " << par[node] << ": " << dist[node] << endl; 
+    // }
+
+    return ans;
+}
+
+ll Prim_dense(int n, vector<pii> adj[]) {
+    vector<bool> mst(n);
+    vector<int> par(n);
+    vector<int> dist(n, INF);
+
     dist[0] = 0;
     
     for(int counter=1; counter<n; counter++) {
         int sel_node = -1;
         int sel_dist = INF;
-        
+
         for(int node=0; node<n; node++) {
             if(!mst[node] && dist[node]<sel_dist) {
                 sel_node = node;
                 sel_dist = dist[node];
             }
         }
-        
+
         if(sel_node == -1) {
-            // Todo
+            return -1;
         }
-        
+
         mst[sel_node] = true;
-        
+
         for(auto it: adj[sel_node]) {
             if(!mst[it.first] && it.second<dist[it.first]) {
                 par[it.first] = sel_node;
@@ -116,69 +168,47 @@ void Prim_dense(int n, int m, vector<vector<pii>>& adj) {
             }
         }
     }
-    
-    cout << "u" << "      " << "v" << "  " << "d" << endl;
+
+    ll ans = 0;
     for(int node=1; node<n; node++) {
-        cout << node << " ---- " << par[node] << ": " << dist[node] << endl; 
+        ans += dist[node];
     }
+
+    // cout << "u" << "      " << "v" << "  " << "d" << endl;
+    // for(int node=1; node<n; node++) {
+    //     cout << node << " ---- " << par[node] << ": " << dist[node] << endl; 
+    // }
+
+    return ans;
 }
 
-void Prim_sparse(int n, int m, vector<vector<pii>>& adj) {
-    vector<bool> mst(n);
-    vector<int> par(n), dist(n, INF);
-    
-    set<pii> set;
-    dist[0] = 0;
-    set.insert({dist[0], 0}); // contains unselected nodes only 
-    
-    for(int counter=1; counter<n; counter++) {
-        if(set.empty()) {
-            // Todo
-        }
-
-        int u = (*set.begin()).second;
-        mst[u] = true;
-        set.erase(set.begin());
-        
-        for(auto it: adj[u]) {
-            int v = it.first;
-            int w = it.second;
-            
-            if(!mst[v] && w<dist[v]) {
-                set.erase({dist[v], v}); // erase previous instance, its useless now
-                
-                par[v] = u;
-                dist[v] = w;
-                set.insert({dist[v], v});
-            }
-        }
-    }
-    
-    cout << "u" << "      " << "v" << "  " << "d" << endl;
-    for(int node=1; node<n; node++) {
-        cout << node << " ---- " << par[node] << ": " << dist[node] << endl; 
-    }
-}
-
-void solve()
-{
+void solve() {
     int n, m; 
     cin >> n >> m;
-    vector<vector<pii>> adj(n);
-    
+
+    vector<pii> adj[n];
     for(int i=0; i<m; i++) {
-        int u, v, w; cin >> u >> v >> w;
-        
+        int u, v, w; 
+        cin >> u >> v >> w;
+        u--; v--;
+
         adj[u].push_back({v, w});
         adj[v].push_back({u, w});
     }
-    
-    Prim_dense(n, m, adj);
-    Prim_sparse(n, m, adj);
-    
+
+    ll ans = Prim_sparse(n, adj);
+    ll ans = Prim_dense(n, adj);
+
+    if(ans == -1) {
+        cout << "IMPOSSIBLE" << '\n';
+        return;
+    }
+
+    cout << ans << '\n';
+
     return;
 }
-
+   
 int main() {
     fastio();
     int t=1;
