@@ -30,7 +30,6 @@ Kruskal fast: eloge + for loop on edges
 =eloge + e*(dsu operation time)
 Kruskal slow: eloge + (v-1)(v) = eloge + v^2 
 Note: (v-1)(v) because union happens only v-1 times, for the remaining times continue statement runs
-because now all the nodes are unified and now have same tree value
 
 read below Notice for optimized implementation to better understand time comp
 
