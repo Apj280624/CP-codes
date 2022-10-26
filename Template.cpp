@@ -35,15 +35,13 @@ ll mod_mul(ll x,ll y,ll m) { return ((x%m)*(y%m))%m; }
 
 
 
-void solve()
-{
+void solve() {
     
     
     return;
 }
 
-int main()
-{
+int main() {
     fastio();
     int t=1;
     // cin>>t;
