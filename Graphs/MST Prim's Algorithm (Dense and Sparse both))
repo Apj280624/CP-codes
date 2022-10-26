@@ -102,13 +102,12 @@ ll Prim_sparse(int n, vector<pii> adj[]) {
             return -1;
         }
 
-        int sel_node = (*set.begin()).second;
-        int sel_dist = (*set.begin()).first;
-
-        mst[sel_node] = true;
+        int u = (*set.begin()).second;
+        
+        mst[u] = true;
         set.erase(set.begin());
 
-        for(auto it: adj[sel_node]) {
+        for(auto it: adj[u]) {
             int v = it.first;
             int w = it.second;
 
@@ -117,7 +116,7 @@ ll Prim_sparse(int n, vector<pii> adj[]) {
                     set.erase({dist[v], v});
                 }
 
-                par[v] = sel_node;
+                par[v] = u;
                 dist[v] = w;
                 set.insert({dist[v], v});
             }
@@ -197,7 +196,7 @@ void solve() {
     }
 
     ll ans = Prim_sparse(n, adj);
-    ll ans = Prim_dense(n, adj);
+    // ll ans = Prim_dense(n, adj);
 
     if(ans == -1) {
         cout << "IMPOSSIBLE" << '\n';
