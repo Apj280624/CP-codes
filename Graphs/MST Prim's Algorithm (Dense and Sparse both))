@@ -33,14 +33,13 @@ ll mod_add(ll x,ll y,ll m) { return ((x%m)+(y%m))%m; }
 ll mod_mul(ll x,ll y,ll m) { return ((x%m)*(y%m))%m; }
 
 /*
-Prim's algorithm:
-Greedy
+Prim's algorithm: Greedy
 Algorithm: 
 -> We have two types of nodes, selected in MST and not selected in MST
 
 -> As MST has n-1 edges only, for n-1 times:
    Out of all unselected edges we selected the edge u-v, such that u 
-   already lies in the MST and v doesnot and the edge weight w is minimal possible
+   already lies in the MST and v doesnot lie in the MST and the edge weight w is minimal possible
   
 -> we will look at this algorithm from a different angle:  
    for every not yet selected vertex we will store the minimum edge to an 
@@ -48,32 +47,40 @@ Algorithm:
    
 -> we will implement the same logic using two different approaches
 
+FOR CURRENT POINT OF TIME:
 mst[i] = true, if node 'i' is present in the mst ie selected
-{dist[i], par[i]} = they both combined represent the minimal distance edge
-that can be used to add node 'i' in the MST: i ---- dist[i] ---- par[i]
+{dist[i], par[i]} = they both combined represent the minimal-distance edge
+that can be used to add node 'i' in the MST: i ---- dist[i] ---- par[i] in 
+the future
 
 so out of all the edges coming from the currently selected nodes towards the node 'i'
-the {dist[i], par[i]} represent the edge with the minimum weight
+the {dist[i], par[i]} represent the edge with the minimum weight at this point of time
 dist[i] represents that minimum weight and
 par[i] represent the node from which that minimum-weighted edge is coming to 'i'
 
-Approach 1: suitable for Dense graphs, t = O()
+Approach 1: suitable for Dense graphs, t = O(V^2)
 
 -> As MST has n-1 edges only, for n-1 times:
 we try to update edges coming from selected nodes to the unselected nodes
 {dist[i], par[i]} combinedly represent the edges
 
-updation: 
-   Out of all the unselected nodes we select a node 'v' and the edge weight 'w' 
-   is minimal possible If no such 'v' is found then it means the graph is 
-   disconnected and the MST doesnot exist
-
+-> select the current node to be added to MST: 
+Out of all the unselected nodes we select a node 'v' and the edge weight 'w' 
+is minimal possible If no such 'v' is found then it means the graph is 
+disconnected and the MST doesnot exist
 -> then add 'v' in MST
--> for all unselected neighbours of 'v', we try to improve their best edge ie
-   update dist and par, if w < dist
+
+-> update using edges coming from newly the selected node v:
+for all unselected neighbours of 'v', we try to improve their best edge ie
+update dist and par, if w < dist
 
 
-Approach 2: suitable for Sparse graphs, t = O()
+Approach 2: suitable for Sparse graphs as E is small, t = O(ElogV)
+-> make a set which contains {dist, unselected nodes}
+
+-> for n-1 times, select the node (v) with the minimum dist, erase it from set
+-> improve the distance for the unselected neighbours of v, and if improvement occurs
+erase the previous instance and add the improved instance
 
 
 */
@@ -122,12 +129,13 @@ void Prim_sparse(int n, int m, vector<vector<pii>>& adj) {
     
     set<pii> set;
     dist[0] = 0;
-    set.insert({dist[0], 0});
+    set.insert({dist[0], 0}); // contains unselected nodes only 
     
     for(int counter=1; counter<n; counter++) {
         if(set.empty()) {
             // Todo
         }
+
         int u = (*set.begin()).second;
         mst[u] = true;
         set.erase(set.begin());
@@ -137,9 +145,7 @@ void Prim_sparse(int n, int m, vector<vector<pii>>& adj) {
             int w = it.second;
             
             if(!mst[v] && w<dist[v]) {
-                if(set.find({dist[v], v}) != set.end()) {
-                    set.erase({dist[v], v});
-                }
+                set.erase({dist[v], v}); // erase previous instance, its useless now
                 
                 par[v] = u;
                 dist[v] = w;
@@ -173,8 +179,7 @@ void solve()
     return;
 }
 
-int main()
-{
+int main() {
     fastio();
     int t=1;
     //cin>>t;
